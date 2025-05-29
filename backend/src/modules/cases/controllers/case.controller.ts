@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
 
 import { ICreateCaseDTO, IUpdateCaseDTO } from '../dtos/case.dto';
+import { IPaginationParams } from '../dtos/pagination.dto';
 import { CaseService } from '../services/case.service';
 
 export class CaseController {
@@ -11,7 +12,13 @@ export class CaseController {
   }
 
   async findAllCases(req: Request, res: Response): Promise<void> {
-    const cases = await this.caseService.findAllCases();
+    const { page = 1, limit = 10 } = req.query;
+    const paginationParams: IPaginationParams = {
+      page: Number(page),
+      limit: Number(limit),
+    };
+
+    const cases = await this.caseService.findAllCases(paginationParams);
     res.status(200).json(cases);
   }
 

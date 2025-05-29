@@ -4,6 +4,7 @@ import { prisma } from '../../../shared/database/prisma';
 import { AppError } from '../../../shared/errors';
 import { logger } from '../../../shared/logger';
 import { ICreateCaseDTO, IUpdateCaseDTO, ICaseResponseDTO } from '../dtos/case.dto';
+import { IPaginationParams, IPaginationResponse } from '../dtos/pagination.dto';
 
 export class CaseRepository {
   private async findById(id: string): Promise<Case | null> {
@@ -12,17 +13,38 @@ export class CaseRepository {
     });
   }
 
-  async findAll(): Promise<ICaseResponseDTO[]> {
-    return prisma.case.findMany({
-      select: {
-        id: true,
-        name: true,
-        description: true,
-        comments: true,
-        createdAt: true,
-        updatedAt: true,
-      },
-    });
+  async findAll(
+    paginationParams: IPaginationParams,
+  ): Promise<IPaginationResponse<ICaseResponseDTO>> {
+    const { page, limit } = paginationParams;
+    const skip = (page - 1) * limit;
+
+    const [total, data] = await Promise.all([
+      prisma.case.count(),
+      prisma.case.findMany({
+        skip,
+        take: limit,
+        select: {
+          id: true,
+          name: true,
+          description: true,
+          comments: true,
+          createdAt: true,
+          updatedAt: true,
+        },
+        orderBy: {
+          createdAt: 'desc',
+        },
+      }),
+    ]);
+
+    return {
+      data,
+      total,
+      totalPages: Math.ceil(total / limit),
+      currentPage: page,
+      limit,
+    };
   }
 
   async create(data: ICreateCaseDTO): Promise<ICaseResponseDTO> {

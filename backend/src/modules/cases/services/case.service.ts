@@ -1,6 +1,7 @@
 import { AppError } from '../../../shared/errors';
 import { logger } from '../../../shared/logger';
 import { ICreateCaseDTO, IUpdateCaseDTO, ICaseResponseDTO } from '../dtos/case.dto';
+import { IPaginationParams, IPaginationResponse } from '../dtos/pagination.dto';
 import { CaseRepository } from '../repositories/case.repository';
 
 export class CaseService {
@@ -10,9 +11,11 @@ export class CaseService {
     this.caseRepository = new CaseRepository();
   }
 
-  async findAllCases(): Promise<ICaseResponseDTO[]> {
+  async findAllCases(
+    paginationParams: IPaginationParams,
+  ): Promise<IPaginationResponse<ICaseResponseDTO>> {
     try {
-      return this.caseRepository.findAll();
+      return this.caseRepository.findAll(paginationParams);
     } catch (error) {
       logger.error(`Error finding all cases: ${error}`);
       throw new AppError(500, 'Error finding cases');
