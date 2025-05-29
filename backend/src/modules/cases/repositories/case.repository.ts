@@ -33,7 +33,7 @@ export class CaseRepository {
           updatedAt: true,
         },
         orderBy: {
-          createdAt: 'desc',
+          updatedAt: 'desc',
         },
       }),
     ]);

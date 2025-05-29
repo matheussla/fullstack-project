@@ -8,11 +8,10 @@ import {
   Card,
   CardContent,
   Button,
-  Snackbar,
-  Alert,
   Pagination,
 } from '@mui/material';
 import { Person as PersonIcon, Add as AddIcon } from '@mui/icons-material';
+import { toast } from 'react-toastify';
 import Navbar from '../../components/Navbar';
 import RecentCases from '../../components/RecentCases';
 import CaseDialog from '../../components/CaseDialog';
@@ -28,15 +27,6 @@ const Dashboard: React.FC = () => {
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [caseToDelete, setCaseToDelete] = useState<ICase | null>(null);
   const [page, setPage] = useState(1);
-  const [snackbar, setSnackbar] = useState<{
-    open: boolean;
-    message: string;
-    severity: 'success' | 'error';
-  }>({
-    open: false,
-    message: '',
-    severity: 'success',
-  });
 
   const {
     cases,
@@ -67,10 +57,10 @@ const Dashboard: React.FC = () => {
   const handleCreateCase = async (caseData: Partial<ICase>) => {
     try {
       await createCase(caseData as Omit<ICase, 'id' | 'createdAt' | 'updatedAt'>);
-      showSnackbar('Case created successfully', 'success');
+      toast.success('Case created successfully');
     } catch (error) {
       console.error('Error creating case:', error);
-      showSnackbar('Error creating case', 'error');
+      toast.error('Error creating case');
     }
   };
 
@@ -88,10 +78,10 @@ const Dashboard: React.FC = () => {
     if (!caseToDelete) return;
     try {
       await deleteCase(caseToDelete.id);
-      showSnackbar('Case deleted successfully', 'success');
+      toast.success('Case deleted successfully');
     } catch (error) {
       console.error('Error deleting case:', error);
-      showSnackbar('Error deleting case', 'error');
+      toast.error('Error deleting case');
     } finally {
       setDeleteDialogOpen(false);
       setCaseToDelete(null);
@@ -102,15 +92,11 @@ const Dashboard: React.FC = () => {
     if (!selectedCase) return;
     try {
       await updateCase({ id: selectedCase.id, data: caseData });
-      showSnackbar('Case updated successfully', 'success');
+      toast.success('Case updated successfully');
     } catch (error) {
       console.error('Error updating case:', error);
-      showSnackbar('Error updating case', 'error');
+      toast.error('Error updating case');
     }
-  };
-
-  const showSnackbar = (message: string, severity: 'success' | 'error') => {
-    setSnackbar({ open: true, message, severity });
   };
 
   if (!user) {
@@ -250,20 +236,6 @@ const Dashboard: React.FC = () => {
         title={caseToDelete?.name || ''}
         isLoading={isDeleting}
       />
-
-      <Snackbar
-        open={snackbar.open}
-        autoHideDuration={6000}
-        onClose={() => setSnackbar({ ...snackbar, open: false })}
-      >
-        <Alert
-          onClose={() => setSnackbar({ ...snackbar, open: false })}
-          severity={snackbar.severity}
-          sx={{ width: '100%' }}
-        >
-          {snackbar.message}
-        </Alert>
-      </Snackbar>
     </Box>
   );
 };

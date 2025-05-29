@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Dialog,
   DialogTitle,
@@ -13,6 +13,7 @@ import {
   ListItemText,
   ListItemSecondaryAction,
   CircularProgress,
+  Typography,
 } from '@mui/material';
 import { Add as AddIcon, Delete as DeleteIcon } from '@mui/icons-material';
 import { ICase } from '../../interfaces';
@@ -34,12 +35,28 @@ const CaseDialog: React.FC<CaseDialogProps> = ({
   isEdit = false,
   isLoading = false,
 }) => {
-  const [name, setName] = useState(caseData?.name || '');
-  const [description, setDescription] = useState(caseData?.description || '');
-  const [comments, setComments] = useState<string[]>(caseData?.comments || []);
+  const [name, setName] = useState('');
+  const [description, setDescription] = useState('');
+  const [comments, setComments] = useState<string[]>([]);
   const [newComment, setNewComment] = useState('');
 
+  useEffect(() => {
+    if (isEdit && caseData) {
+      setName(caseData.name);
+      setDescription(caseData.description);
+      setComments(caseData.comments || []);
+    } else {
+      setName('');
+      setDescription('');
+      setComments([]);
+      setNewComment('');
+    }
+  }, [isEdit, caseData, open]);
+
   const handleSave = async () => {
+    if (!name.trim()) {
+      return;
+    }
     await onSave({ name, description, comments });
     onClose();
   };
@@ -74,6 +91,9 @@ const CaseDialog: React.FC<CaseDialogProps> = ({
           value={name}
           onChange={(e) => setName(e.target.value)}
           disabled={isLoading}
+          required
+          error={!name.trim()}
+          helperText={!name.trim() ? 'Name is required' : ''}
         />
         <TextField
           margin="dense"
@@ -84,8 +104,12 @@ const CaseDialog: React.FC<CaseDialogProps> = ({
           value={description}
           onChange={(e) => setDescription(e.target.value)}
           disabled={isLoading}
+          placeholder="Enter case description..."
         />
-        <Box sx={{ mt: 2 }}>
+        <Box sx={{ mt: 3 }}>
+          <Typography variant="subtitle1" gutterBottom>
+            Comments
+          </Typography>
           <TextField
             label="Add Comment"
             fullWidth
@@ -93,6 +117,7 @@ const CaseDialog: React.FC<CaseDialogProps> = ({
             onChange={(e) => setNewComment(e.target.value)}
             onKeyPress={handleKeyPress}
             disabled={isLoading}
+            placeholder="Type a comment and press Enter..."
             InputProps={{
               endAdornment: (
                 <IconButton onClick={handleAddComment} color="primary" disabled={isLoading}>
@@ -102,9 +127,17 @@ const CaseDialog: React.FC<CaseDialogProps> = ({
             }}
           />
           {comments.length > 0 && (
-            <List>
+            <List sx={{ mt: 2 }}>
               {comments.map((comment, index) => (
-                <ListItem key={index}>
+                <ListItem
+                  key={index}
+                  sx={{
+                    bgcolor: 'background.paper',
+                    borderRadius: 1,
+                    mb: 1,
+                    border: '1px solid rgba(255, 255, 255, 0.1)',
+                  }}
+                >
                   <ListItemText primary={comment} />
                   <ListItemSecondaryAction>
                     <IconButton
@@ -112,6 +145,7 @@ const CaseDialog: React.FC<CaseDialogProps> = ({
                       aria-label="delete"
                       onClick={() => handleRemoveComment(index)}
                       disabled={isLoading}
+                      color="error"
                     >
                       <DeleteIcon />
                     </IconButton>
@@ -130,7 +164,7 @@ const CaseDialog: React.FC<CaseDialogProps> = ({
           onClick={handleSave}
           variant="contained"
           color="primary"
-          disabled={isLoading}
+          disabled={isLoading || !name.trim()}
           startIcon={isLoading ? <CircularProgress size={20} color="inherit" /> : null}
         >
           {isEdit ? 'Save' : 'Create'}

@@ -5,3 +5,4 @@ package-lock.json
 dev.db
 dist
 data
+coverage
