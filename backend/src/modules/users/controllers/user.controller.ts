@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
-import { ICreateUserDTO } from 'src/modules/users/dtos/user.dto';
-import { UserService } from 'src/modules/users/services/user.service';
+
+import { ICreateUserDTO } from '../dtos/user.dto';
+import { UserService } from '../services/user.service';
 
 export class UserController {
   private userService: UserService;

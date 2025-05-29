@@ -1,8 +1,9 @@
 import { User, UserRole } from '@prisma/client';
-import { ICreateUserDTO, IUserResponseDTO } from 'src/modules/users/dtos/user.dto';
-import { prisma } from 'src/shared/database/prisma';
-import { AppError } from 'src/shared/errors';
-import { logger } from 'src/shared/logger';
+
+import { prisma } from '../../../shared/database/prisma';
+import { AppError } from '../../../shared/errors';
+import { logger } from '../../../shared/logger';
+import { ICreateUserDTO, IUserResponseDTO } from '../dtos/user.dto';
 
 export class UserRepository {
   private async findById(id: string): Promise<User | null> {

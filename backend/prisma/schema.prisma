@@ -22,3 +22,12 @@ model User {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
+
+model Case {
+  id          String   @id @default(uuid())
+  name        String
+  description String
+  comments    String[]
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}

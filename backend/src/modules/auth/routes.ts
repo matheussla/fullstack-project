@@ -1,6 +1,7 @@
 import { Router } from 'express';
-import { AuthController } from 'src/modules/auth/controllers/auth.controller';
-import { asyncHandler } from 'src/shared/middlewares';
+
+import { AuthController } from './controllers/auth.controller';
+import { asyncHandler } from '../../shared/middlewares';
 
 const authRouter = Router();
 const authController = new AuthController();

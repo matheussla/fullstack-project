@@ -1,9 +1,10 @@
 import { compare } from 'bcryptjs';
 import { sign } from 'jsonwebtoken';
-import { config } from 'src/config';
-import { ILoginDTO, IAuthResponse } from 'src/modules/auth/dtos/auth.dto';
-import { prisma } from 'src/shared/database/prisma';
-import { AppError } from 'src/shared/errors';
+
+import { config } from '../../../config';
+import { prisma } from '../../../shared/database/prisma';
+import { AppError } from '../../../shared/errors';
+import { ILoginDTO, IAuthResponse } from '../dtos/auth.dto';
 
 export class AuthService {
   async login(data: ILoginDTO): Promise<IAuthResponse> {

@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
-import { ILoginDTO } from 'src/modules/auth/dtos/auth.dto';
-import { AuthService } from 'src/modules/auth/services/auth.service';
+
+import { ILoginDTO } from '../dtos/auth.dto';
+import { AuthService } from '../services/auth.service';
 
 export class AuthController {
   private authService: AuthService;

@@ -1,8 +1,9 @@
 import { hash } from 'bcryptjs';
-import { ICreateUserDTO, IUserResponseDTO } from 'src/modules/users/dtos/user.dto';
-import { UserRepository } from 'src/modules/users/repositories/user.repository';
-import { AppError } from 'src/shared/errors';
-import { logger } from 'src/shared/logger';
+
+import { AppError } from '../../../shared/errors';
+import { logger } from '../../../shared/logger';
+import { ICreateUserDTO, IUserResponseDTO } from '../dtos/user.dto';
+import { UserRepository } from '../repositories/user.repository';
 
 export class UserService {
   private userRepository: UserRepository;

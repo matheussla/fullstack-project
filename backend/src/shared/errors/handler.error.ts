@@ -1,5 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
-import { logger } from 'src/shared/logger';
+
+import { logger } from '../logger';
 
 export class AppError extends Error {
   constructor(
