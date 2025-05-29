@@ -31,17 +31,22 @@ const users = [
 ];
 
 export async function seedUsers(prisma: PrismaClient): Promise<void> {
-  logger.info('Seeding users...');
+  logger.info('🌱 Starting user seeding...');
 
-  for (const userData of users) {
-    const hashedPassword = await hash(userData.password, 10);
-    await prisma.user.create({
-      data: {
-        ...userData,
-        password: hashedPassword,
-      },
-    });
+  try {
+    for (const userData of users) {
+      const hashedPassword = await hash(userData.password, 10);
+      await prisma.user.create({
+        data: {
+          ...userData,
+          password: hashedPassword,
+        },
+      });
+    }
+
+    logger.info('✅ User seeding completed successfully!');
+  } catch (error) {
+    logger.error('❌ Error seeding users:', error);
+    throw error;
   }
-
-  logger.info(`Created ${users.length} users`);
 }

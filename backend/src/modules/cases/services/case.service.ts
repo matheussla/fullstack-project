@@ -12,7 +12,7 @@ export class CaseService {
 
   async findAllCases(): Promise<ICaseResponseDTO[]> {
     try {
-      return await this.caseRepository.findAll();
+      return this.caseRepository.findAll();
     } catch (error) {
       logger.error(`Error finding all cases: ${error}`);
       throw new AppError(500, 'Error finding cases');
@@ -21,7 +21,7 @@ export class CaseService {
 
   async createCase(data: ICreateCaseDTO): Promise<ICaseResponseDTO> {
     try {
-      return await this.caseRepository.create(data);
+      return this.caseRepository.create(data);
     } catch (error) {
       logger.error(`Error creating case: ${error}`);
       throw new AppError(500, 'Error creating case');
@@ -30,7 +30,7 @@ export class CaseService {
 
   async updateCase(id: string, data: IUpdateCaseDTO): Promise<ICaseResponseDTO> {
     try {
-      return await this.caseRepository.update(id, data);
+      return this.caseRepository.update(id, data);
     } catch (error) {
       logger.error(`Error updating case with ID ${id}: ${error}`);
       throw new AppError(500, 'Error updating case');

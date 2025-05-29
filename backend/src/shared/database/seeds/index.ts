@@ -1,5 +1,6 @@
 import { PrismaClient } from '@prisma/client';
 
+import { seedCases } from './case.seed';
 import { seedUsers } from './user.seed';
 import { logger } from '../../../shared/logger';
 
@@ -10,8 +11,10 @@ async function main(): Promise<void> {
     logger.info('Starting database seeding...');
 
     await prisma.user.deleteMany();
+    await prisma.case.deleteMany();
 
     await seedUsers(prisma);
+    await seedCases(prisma);
 
     logger.info('Database seeding completed successfully');
   } catch (error) {
