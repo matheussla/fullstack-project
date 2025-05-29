@@ -10,30 +10,24 @@ import {
   Button,
   Snackbar,
   Alert,
+  Pagination,
 } from '@mui/material';
 import { Person as PersonIcon, Add as AddIcon } from '@mui/icons-material';
 import Navbar from '../../components/Navbar';
 import RecentCases from '../../components/RecentCases';
 import CaseDialog from '../../components/CaseDialog';
 import DeleteConfirmationDialog from '../../components/DeleteConfirmationDialog';
-import { caseService } from '../../services/api';
-import { ICase } from '../../interfaces';
-
-interface User {
-  id: string;
-  name: string;
-  email: string;
-}
+import { useCases } from '../../hooks/useCases';
+import { ICase, IUser } from '../../interfaces';
 
 const Dashboard: React.FC = () => {
   const navigate = useNavigate();
-  const [user, setUser] = useState<User | null>(null);
-  const [cases, setCases] = useState<ICase[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [user, setUser] = useState<IUser | null>(null);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [selectedCase, setSelectedCase] = useState<ICase | null>(null);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [caseToDelete, setCaseToDelete] = useState<ICase | null>(null);
+  const [page, setPage] = useState(1);
   const [snackbar, setSnackbar] = useState<{
     open: boolean;
     message: string;
@@ -44,6 +38,19 @@ const Dashboard: React.FC = () => {
     severity: 'success',
   });
 
+  const {
+    cases,
+    pagination,
+    isLoading,
+    error,
+    createCase,
+    updateCase,
+    deleteCase,
+    isCreating,
+    isUpdating,
+    isDeleting,
+  } = useCases(page, 10);
+
   useEffect(() => {
     const storedUser = localStorage.getItem('user');
     if (!storedUser) {
@@ -53,26 +60,13 @@ const Dashboard: React.FC = () => {
     setUser(JSON.parse(storedUser));
   }, [navigate]);
 
-  const fetchCases = async () => {
-    try {
-      const casesData = await caseService.listCases();
-      setCases(casesData);
-    } catch (error) {
-      console.error('Error fetching cases:', error);
-      showSnackbar('Error fetching cases', 'error');
-    } finally {
-      setLoading(false);
-    }
+  const handlePageChange = (_event: React.ChangeEvent<unknown>, value: number) => {
+    setPage(value);
   };
-
-  useEffect(() => {
-    fetchCases();
-  }, []);
 
   const handleCreateCase = async (caseData: Partial<ICase>) => {
     try {
-      await caseService.createCase(caseData as Omit<ICase, 'id' | 'createdAt' | 'updatedAt'>);
-      await fetchCases();
+      await createCase(caseData as Omit<ICase, 'id' | 'createdAt' | 'updatedAt'>);
       showSnackbar('Case created successfully', 'success');
     } catch (error) {
       console.error('Error creating case:', error);
@@ -93,8 +87,7 @@ const Dashboard: React.FC = () => {
   const handleConfirmDelete = async () => {
     if (!caseToDelete) return;
     try {
-      await caseService.deleteCase(caseToDelete.id);
-      await fetchCases();
+      await deleteCase(caseToDelete.id);
       showSnackbar('Case deleted successfully', 'success');
     } catch (error) {
       console.error('Error deleting case:', error);
@@ -108,8 +101,7 @@ const Dashboard: React.FC = () => {
   const handleUpdateCase = async (caseData: Partial<ICase>) => {
     if (!selectedCase) return;
     try {
-      await caseService.updateCase(selectedCase.id, caseData);
-      await fetchCases();
+      await updateCase({ id: selectedCase.id, data: caseData });
       showSnackbar('Case updated successfully', 'success');
     } catch (error) {
       console.error('Error updating case:', error);
@@ -164,7 +156,7 @@ const Dashboard: React.FC = () => {
           <Box sx={{ gridColumn: { xs: 'span 12', md: 'span 8' } }}>
             <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(12, 1fr)', gap: 3 }}>
               {[
-                { title: 'Total Cases', value: cases.length },
+                { title: 'Total Cases', value: pagination.total },
                 { title: 'Total Comments', value: cases.reduce((acc, curr) => acc + curr.comments.length, 0) },
                 { title: 'Recent Cases', value: cases.filter(c => {
                   const oneWeekAgo = new Date();
@@ -210,16 +202,28 @@ const Dashboard: React.FC = () => {
                   setSelectedCase(null);
                   setDialogOpen(true);
                 }}
+                disabled={isCreating}
               >
                 Create Case
               </Button>
             </Box>
             <RecentCases
               cases={cases}
-              loading={loading}
+              loading={isLoading}
               onEdit={handleEdit}
               onDelete={handleDelete}
             />
+            {!isLoading && pagination.totalPages > 1 && (
+              <Box sx={{ display: 'flex', justifyContent: 'center', mt: 3 }}>
+                <Pagination
+                  count={pagination.totalPages}
+                  page={pagination.page}
+                  onChange={handlePageChange}
+                  color="primary"
+                  size="large"
+                />
+              </Box>
+            )}
           </Box>
         </Box>
       </Container>
@@ -233,6 +237,7 @@ const Dashboard: React.FC = () => {
         onSave={selectedCase ? handleUpdateCase : handleCreateCase}
         caseData={selectedCase || undefined}
         isEdit={!!selectedCase}
+        isLoading={isCreating || isUpdating}
       />
 
       <DeleteConfirmationDialog
@@ -243,6 +248,7 @@ const Dashboard: React.FC = () => {
         }}
         onConfirm={handleConfirmDelete}
         title={caseToDelete?.name || ''}
+        isLoading={isDeleting}
       />
 
       <Snackbar

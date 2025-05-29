@@ -12,6 +12,7 @@ import {
   ListItem,
   ListItemText,
   ListItemSecondaryAction,
+  CircularProgress,
 } from '@mui/material';
 import { Add as AddIcon, Delete as DeleteIcon } from '@mui/icons-material';
 import { ICase } from '../../interfaces';
@@ -22,9 +23,17 @@ interface CaseDialogProps {
   onSave: (caseData: Partial<ICase>) => Promise<void>;
   caseData?: ICase;
   isEdit?: boolean;
+  isLoading?: boolean;
 }
 
-const CaseDialog: React.FC<CaseDialogProps> = ({ open, onClose, onSave, caseData, isEdit = false }) => {
+const CaseDialog: React.FC<CaseDialogProps> = ({
+  open,
+  onClose,
+  onSave,
+  caseData,
+  isEdit = false,
+  isLoading = false,
+}) => {
   const [name, setName] = useState(caseData?.name || '');
   const [description, setDescription] = useState(caseData?.description || '');
   const [comments, setComments] = useState<string[]>(caseData?.comments || []);
@@ -64,6 +73,7 @@ const CaseDialog: React.FC<CaseDialogProps> = ({ open, onClose, onSave, caseData
           fullWidth
           value={name}
           onChange={(e) => setName(e.target.value)}
+          disabled={isLoading}
         />
         <TextField
           margin="dense"
@@ -73,6 +83,7 @@ const CaseDialog: React.FC<CaseDialogProps> = ({ open, onClose, onSave, caseData
           rows={4}
           value={description}
           onChange={(e) => setDescription(e.target.value)}
+          disabled={isLoading}
         />
         <Box sx={{ mt: 2 }}>
           <TextField
@@ -81,9 +92,10 @@ const CaseDialog: React.FC<CaseDialogProps> = ({ open, onClose, onSave, caseData
             value={newComment}
             onChange={(e) => setNewComment(e.target.value)}
             onKeyPress={handleKeyPress}
+            disabled={isLoading}
             InputProps={{
               endAdornment: (
-                <IconButton onClick={handleAddComment} color="primary">
+                <IconButton onClick={handleAddComment} color="primary" disabled={isLoading}>
                   <AddIcon />
                 </IconButton>
               ),
@@ -99,6 +111,7 @@ const CaseDialog: React.FC<CaseDialogProps> = ({ open, onClose, onSave, caseData
                       edge="end"
                       aria-label="delete"
                       onClick={() => handleRemoveComment(index)}
+                      disabled={isLoading}
                     >
                       <DeleteIcon />
                     </IconButton>
@@ -110,8 +123,16 @@ const CaseDialog: React.FC<CaseDialogProps> = ({ open, onClose, onSave, caseData
         </Box>
       </DialogContent>
       <DialogActions>
-        <Button onClick={onClose}>Cancel</Button>
-        <Button onClick={handleSave} variant="contained" color="primary">
+        <Button onClick={onClose} disabled={isLoading}>
+          Cancel
+        </Button>
+        <Button
+          onClick={handleSave}
+          variant="contained"
+          color="primary"
+          disabled={isLoading}
+          startIcon={isLoading ? <CircularProgress size={20} color="inherit" /> : null}
+        >
           {isEdit ? 'Save' : 'Create'}
         </Button>
       </DialogActions>

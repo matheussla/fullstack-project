@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { ICase, ILoginCredentials, ILoginResponse } from '../interfaces';
+import { ICase, ILoginCredentials, ILoginResponse, IPaginationResponse } from '../interfaces';
 
 const api = axios.create({
   baseURL: process.env.REACT_APP_API_URL || 'http://localhost:3001',
@@ -24,8 +24,10 @@ export const authService = {
 };
 
 export const caseService = {
-  listCases: async (): Promise<ICase[]> => {
-    const { data } = await api.get<ICase[]>('/cases');
+  listCases: async (page = 1, limit = 10): Promise<IPaginationResponse<ICase>> => {
+    const { data } = await api.get<IPaginationResponse<ICase>>('/cases', {
+      params: { page, limit },
+    });
     return data;
   },
 
